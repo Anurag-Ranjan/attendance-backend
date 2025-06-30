@@ -4,6 +4,6 @@ import { protectRoute } from "../middlewares/auth.middleware.js";
 
 const teacherRouter = Router();
 
-teacherRouter.route("/getSubjects").get(protectRoute, getSubjects);
+teacherRouter.route("/getSubjects/:token").get(protectRoute, getSubjects);
 
 export default teacherRouter;

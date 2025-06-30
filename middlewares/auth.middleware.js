@@ -3,7 +3,7 @@ import prisma from "../db/db.config.js";
 
 export const protectRoute = async (req, res, next) => {
   try {
-    const { token } = req.body;
+    const { token } = req.params;
     if (!token) {
       return res
         .status(404)

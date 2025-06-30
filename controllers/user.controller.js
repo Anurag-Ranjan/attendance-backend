@@ -78,7 +78,93 @@ const verifyRefreshToken = async (req, res) => {
   }
 };
 
-const getUser = async (req, res) => {
-  const { userId } = req.body;
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { role } = req.body;
+
+    let include;
+
+    if (role === "teacher") {
+      include = {
+        teacher: true,
+      };
+    }
+    if (role === "student") {
+      include = {
+        student: {
+          include: {
+            class: true,
+          },
+        },
+      };
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: include,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found.",
+      });
+    }
+
+    if (role === "teacher") {
+      const { name, email, gender, department, created_at, updated_at } = user;
+      const { teacher_id_no } = user.teacher;
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          name,
+          email,
+          gender,
+          department,
+          role: "teacher",
+          teacher_id_no,
+          created_at,
+          updated_at,
+        },
+      });
+    }
+
+    if (role === "student") {
+      const { name, email, gender, department, created_at, updated_at } = user;
+      const { reg_no, year, class: studentClass } = user.student;
+
+      console.log(studentClass);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          name,
+          email,
+          gender,
+          branch: studentClass.branch,
+          class: {
+            code: studentClass.code,
+            semester: studentClass.semester,
+          },
+          department,
+          role: "student",
+          regNo: reg_no,
+          year,
+          created_at,
+          updated_at,
+        },
+      });
+    }
+  } catch (err) {
+    console.error("getUserProfile error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
-export { loginOtpSend, loginOtpVerify, verifyRefreshToken };
+export { loginOtpSend, loginOtpVerify, verifyRefreshToken, getUserProfile };
