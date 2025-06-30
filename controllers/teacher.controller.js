@@ -2,49 +2,56 @@ import prisma from "../db/db.config.js";
 
 const getSubjects = async (req, res) => {
   try {
-    const { teacherId } = req.body;
+    const userId = req.userId;
 
-    // Fetch all teacher-class-subject relationships in a single query
-    const teacherClasses = await prisma.teacherClass.findMany({
-      where: {
-        teacher_id: teacherId,
-      },
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: userId },
       include: {
-        class: true, // Include full class information
-        subject: true, // Include full subject information
+        teacherClasses: {
+          include: {
+            class: true,
+            subject: true,
+          },
+        },
       },
     });
 
-    // Group the results by class
-    const classMap = new Map();
-
-    for (const record of teacherClasses) {
-      const classId = record.class_id;
-
-      // If we haven't seen this class yet, initialize it in our map
-      if (!classMap.has(classId)) {
-        classMap.set(classId, {
-          classInfo: record.class,
-          subjects: [],
-        });
-      }
-
-      // Add this subject to the class's subjects array
-      classMap.get(classId).subjects.push(record.subject);
+    if (!teacher) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Teacher not found" });
     }
 
-    // Convert the map to the desired array format
-    const classesTaught = Array.from(classMap.values());
+    const semesterMap = new Map();
 
-    // Return the result
-    console.log(classesTaught);
-    console.log(classesTaught[0].subjects);
-  } catch (error) {
-    console.error("Error fetching teacher classes and subjects:", error);
-    return {
-      success: false,
-      error: error.message,
-    };
+    teacher.teacherClasses.forEach(({ class: cls, subject }) => {
+      const semesterKey = `Sem ${cls.semester}`;
+      if (!semesterMap.has(semesterKey)) {
+        semesterMap.set(semesterKey, []);
+      }
+
+      semesterMap.get(semesterKey).push({
+        name: subject.name,
+        code: subject.code,
+        branch: cls.branch,
+      });
+    });
+
+    const result = Array.from(semesterMap.entries())
+      .sort(([a], [b]) => {
+        const semA = a.split(" ")[1];
+        const semB = b.split(" ")[1];
+        return semesterOrder[semA] - semesterOrder[semB];
+      })
+      .map(([semester, subjects]) => ({
+        semester,
+        subjects,
+      }));
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error("Error in getTeacherSubjectsFromDB:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
