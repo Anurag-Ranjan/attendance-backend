@@ -1,12 +1,7 @@
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
-import adminRouter from "./routes/admin.route.js";
-import userRouter from "./routes/user.route.js";
-import teacherRouter from "./routes/teacher.route.js";
-import homeRouter from "./routes/home.route.js";
-import attendanceRouter from "./routes/attendance.route.js";
-import studentRouter from "./routes/student.route.js";
+import { router } from "./routes/index.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
 
 // Initialize Express app ONCE
@@ -29,12 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Static files (if needed)
 app.use(express.static("public"));
 // Routes
-app.use("/api/v1/admin", adminRouter);
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/teacher", teacherRouter);
-app.use("/api/v1/student", studentRouter);
-app.use("/api/v1/home", homeRouter);
-app.use("/api/v1/attendance", attendanceRouter);
+app.use("/api/v1", router);
 app.set("host", "0.0.0.0");
 app.use(globalErrorHandler);
 
