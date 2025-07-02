@@ -188,6 +188,14 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   student_records: 'student_records'
 };
 
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  message: 'message',
+  createdAt: 'createdAt',
+  isRead: 'isRead'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -251,7 +259,8 @@ exports.Prisma.ModelName = {
   Subject: 'Subject',
   ClassSubject: 'ClassSubject',
   TeacherClass: 'TeacherClass',
-  Attendance: 'Attendance'
+  Attendance: 'Attendance',
+  Notification: 'Notification'
 };
 
 /**

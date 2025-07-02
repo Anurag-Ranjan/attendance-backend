@@ -89,8 +89,7 @@ const getUserProfile = async (req, res) => {
       include = {
         teacher: true,
       };
-    }
-    if (role === "student") {
+    } else if (role === "student") {
       include = {
         student: {
           include: {

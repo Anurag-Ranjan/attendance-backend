@@ -9,6 +9,7 @@ export const getSubjectsWithAttendance = async (req, res) => {
       where: { id: userId },
     });
 
+    console.log(student);
     if (!student) {
       return res.status(404).json({
         success: false,

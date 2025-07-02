@@ -62,8 +62,9 @@ model User {
   fcmToken     String?
 
   // Relations
-  teacher Teacher? // One-to-one relation with Teacher
-  student Student? // One-to-one relation with Student
+  teacher       Teacher? // One-to-one relation with Teacher
+  student       Student? // One-to-one relation with Student
+  notifications Notification[]
 }
 
 // Teachers model
@@ -155,4 +156,14 @@ model Attendance {
   class   Class   @relation(fields: [class_id], references: [id])
   subject Subject @relation(fields: [subject_id], references: [id])
   teacher Teacher @relation(fields: [teacher_id], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  message   String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
 }
