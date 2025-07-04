@@ -236,8 +236,8 @@ export const getSubjectWiseMonthlyAttendance = async (req, res) => {
     }
 
     // Step 3: Calculate date range for the requested month
-    const startDate = new Date(yearNum, monthNum - 1, 1); // First day of month
-    const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59, 999); // Last day of month with full time
+    const startDate = new Date(yearNum, monthNum - 2, 1); // previous month
+    const endDate = new Date(yearNum, monthNum + 1, 0, 23, 59, 59, 999); // end of next month
 
     // Step 4: Get attendance records for the specific subject, class, and date range
     const attendanceRecords = await prisma.attendance.findMany({
