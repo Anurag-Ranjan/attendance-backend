@@ -6,6 +6,7 @@ import homeRouter from "./home.route.js";
 import attendanceRouter from "./attendance.route.js";
 import studentRouter from "./student.route.js";
 import logsRouter from "./logs.route.js";
+import notificationRouter from "./notification.route.js";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/student", studentRouter);
 router.use("/home", homeRouter);
 router.use("/attendance", attendanceRouter);
 router.use("/logs", logsRouter);
+router.use("/notification", notificationRouter);
 
 export { router };

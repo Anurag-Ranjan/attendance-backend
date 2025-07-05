@@ -1,6 +1,9 @@
-const notificationTemplate = {
+export const notificationTemplate = {
   student: {
-    present: "You have been successfully marked present for subject",
-    absent: "You missed the attendance window for subject on date",
+    attendance: "Attendance for {{subject}} has been started",
+    present:
+      "You have been successfully marked present for subject {{subject}} on {{date}}",
+    absent:
+      "You missed the attendance window for subject {{subject}} on {{date}}",
   },
 };
