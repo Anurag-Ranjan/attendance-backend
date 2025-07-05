@@ -73,7 +73,7 @@ const getSubjects = async (req, res) => {
 const getStudentAnalytics = async (req, res) => {
   try {
     const teacherId = req.userId;
-    const { subjectId, semester } = req.body;
+    const { subjectId, semester } = req.query;
 
     if (!teacherId || !subjectId || !semester) {
       throw new ApiError(400, "Missing required parameters");
@@ -162,7 +162,7 @@ const getStudentAnalytics = async (req, res) => {
 const getAttendanceSheet = async (req, res) => {
   try {
     const teacherId = req.userId;
-    const { subjectId, semester } = req.body;
+    const { subjectId, semester } = req.query;
 
     if (!teacherId || !subjectId || !semester) {
       throw new ApiError(400, "Missing required parameters");

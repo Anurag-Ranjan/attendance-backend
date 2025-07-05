@@ -4,16 +4,14 @@ import {
   getSubjects,
   getAttendanceSheet,
 } from "../controllers/teacher.controller.js";
-import { protectRoute } from "../middlewares/auth.middleware.js";
+import { protectRoute, verifyToken } from "../middlewares/auth.middleware.js";
 
 const teacherRouter = Router();
 
 teacherRouter.route("/getSubjects/:token").get(protectRoute, getSubjects);
 teacherRouter
-  .route("/analytics/students/:token")
-  .get(protectRoute, getStudentAnalytics);
-teacherRouter
-  .route("/attendance/export/:token")
-  .get(protectRoute, getAttendanceSheet);
+  .route("/analytics/students")
+  .get(verifyToken, getStudentAnalytics);
+teacherRouter.route("/attendance/export").get(verifyToken, getAttendanceSheet);
 
 export default teacherRouter;
