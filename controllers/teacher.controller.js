@@ -42,6 +42,7 @@ const getSubjects = async (req, res) => {
       }
 
       semesterMap.get(semesterKey).push({
+        id: subject.id,
         name: subject.name,
         code: subject.code,
         branch: cls.branch,

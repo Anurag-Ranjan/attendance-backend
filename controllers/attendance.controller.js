@@ -452,7 +452,6 @@ const getActiveattendance = async (req, res) => {
     // Get the current time
     const currentTime = new Date();
 
-    // Find the active attendance record for the student where the session has not ended
     const attendance = await prisma.attendance.findFirst({
       where: {
         student_records: {
@@ -460,7 +459,7 @@ const getActiveattendance = async (req, res) => {
           equals: { status: "absent" },
         },
         session_end: {
-          gt: currentTime, // The session should not have ended yet
+          gt: currentTime,
         },
       },
       select: {
@@ -495,7 +494,36 @@ const getActiveattendance = async (req, res) => {
         .json(new ApiResponse(404, null, "No active attendance session found"));
     }
 
-    // Format session_end date
+    const attendanceId = attendance.id;
+
+    const redisKey = `attendance_session:${attendanceId}`;
+    const data = await client.get(redisKey);
+
+    if (!data) {
+      throw new ApiError(404, "No attendance session found in Redis");
+    }
+
+    const records = JSON.parse(data);
+
+    const session = records.find((rec) => rec.attendanceId === attendanceId);
+
+    if (!session) {
+      throw new ApiError(404, "No matching session found in Redis");
+    }
+
+    const studentRecord = session.studentRecords[studentId];
+
+    if (!studentRecord) {
+      throw new ApiError(
+        404,
+        "No record found for this student in the session"
+      );
+    }
+
+    if (studentRecord.status === "present") {
+      throw new ApiError(400, "Student already marked present");
+    }
+
     const options = {
       year: "numeric",
       month: "long",
@@ -511,7 +539,6 @@ const getActiveattendance = async (req, res) => {
       options
     );
 
-    // Prepare response data
     const responseData = {
       attendanceId: attendance.id,
       teacherName: attendance.teacher.user.name,
@@ -537,8 +564,6 @@ const redisConnect = async (req, res) => {
   client.set("foo", "done");
   res.status(200).json({ message: "Redis pe gaya saaman" });
 };
-
-// TODO: Update records to be added
 
 export {
   startSession,
