@@ -133,7 +133,11 @@ const startSession = async (req, res) => {
       teacherLongitude: attendance.teacherLongitude,
       teacherId: teacherId,
       studentRecords: studentRecords,
+      distance: distance,
+      time: time,
     });
+
+    console.log(records);
 
     const data = { attendanceId: attendance.id };
 
@@ -209,7 +213,7 @@ const getMarked = async (req, res) => {
       parseFloat(attendance[0].teacherLongitude),
       parseFloat(studentLat),
       parseFloat(studentLon),
-      1
+      parseFloat(attendance[0].distance)
     );
 
     console.log(attendance[0].teacherLatitude);
