@@ -20,7 +20,8 @@ const startSession = async (req, res) => {
     teacherLatitude,
     teacherLongitude,
   } = req.body;
-
+  const distance = req.body.distance ?? 5; // default to 5 meters
+  const time = req.body.time ?? 180;
   try {
     let records = [];
 
@@ -85,8 +86,14 @@ const startSession = async (req, res) => {
       .map((student) => student.user.fcmToken)
       .filter((token) => token);
 
+    if (distance < 1 || distance > 30) {
+      throw new Error("Invalid radius. Max : 30m; Min:5m");
+    }
+    if (time < 60 || time > 600) {
+      throw new Error("Invalid duration. Max : 10min; Min : 1min");
+    }
     const sessionStart = new Date();
-    const sessionEnd = new Date(sessionStart.getTime() + 3 * 60 * 1000);
+    const sessionEnd = new Date(sessionStart.getTime() + time * 1000);
 
     const studentRecords = students.reduce((acc, student) => {
       acc[student.id] = { status: "absent" };
