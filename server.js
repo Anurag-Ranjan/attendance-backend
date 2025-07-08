@@ -1,7 +1,7 @@
 import { app } from "./app.js";
 import dotenv from "dotenv";
 
-dotenv.config({ path: "./.env" });
+dotenv.config();
 
 const PORT = 3000;
 const HOST = app.get("host"); // 👈 Get from app settings
