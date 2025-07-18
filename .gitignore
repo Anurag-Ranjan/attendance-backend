@@ -120,3 +120,5 @@ dist
 pushify-bc6ec-firebase-adminsdk-fbsvc-7ba2302ff5.json
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
+
+testing/

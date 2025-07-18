@@ -250,7 +250,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\user\\Desktop\\Anurag\\attendance backend\\attendance-backend\\generated\\prisma",
+      "value": "/home/anurag/projects/attendance_backend/attendance-backend/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -259,12 +259,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\user\\Desktop\\Anurag\\attendance backend\\attendance-backend\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/anurag/projects/attendance_backend/attendance-backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
