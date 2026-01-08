@@ -1,20 +1,31 @@
 // mailer.js
 import nodemailer from "nodemailer";
-// Replace with your Mailtrap credentials
-const transporter = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 587,
-  auth: {
-    user: "bcc2fa4e1aee04",
-    pass: "1ac7b888caecc7",
-  },
-});
+import { MailtrapTransport } from "mailtrap";
 
-export const sendMail = async (mail, otp) => {
+// 1. Your Credentials
+const TOKEN = "556675116843ef710f731c3c3f65a81e"; // Rotate this token!
+const INBOX_ID = 4298683; // Your Inbox ID
+
+// 2. Initialize Nodemailer with the Mailtrap Transport
+// This wrapper sends via API (HTTPS), bypassing Render's SMTP blocks.
+const transport = nodemailer.createTransport(
+  MailtrapTransport({
+    token: TOKEN,
+    sandbox: true, // This forces it to use the Sandbox API
+    testInboxId: INBOX_ID,
+  })
+);
+
+const sender = {
+  address: "admin@attendx.com",
+  name: "Attendx Admin",
+};
+
+export const sendMail = async (email, otp) => {
   try {
-    const info = await transporter.sendMail({
-      from: '"Attendx Admin" <admin@attendx.com>',
-      to: mail,
+    const info = await transport.sendMail({
+      from: sender,
+      to: email, // Nodemailer accepts a simple string here
       subject: "Your Attendx Login OTP",
       text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
       html: `
@@ -26,12 +37,13 @@ export const sendMail = async (mail, otp) => {
           <p>– Attendx Team</p>
         </div>
       `,
+      category: "OTP",
     });
+
+    console.log("OTP email sent successfully. Message ID:", info.messageId);
     return true;
-    console.log("OTP email sent: %s", info.messageId);
   } catch (err) {
     console.error("Error sending email:", err);
+    return false;
   }
 };
-
-// Call this for testing
