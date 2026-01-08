@@ -18,11 +18,11 @@ const loginOtpSend = async (req, res) => {
       where: { id: user.id },
       data: { otp, otp_expiry: new Date(Date.now() + 5 * 60 * 1000) },
     });
-    // const mailed = await sendMail(email, otp);
-    // if (!mailed) {
-    //   console.log("Otp mail not sent");
-    //   throw new ApiError(500, "Something went wrong. OTP mail not sent.");
-    // }
+    const mailed = await sendMail(email, otp);
+    if (!mailed) {
+      console.log("Otp mail not sent");
+      throw new ApiError(500, "Something went wrong. OTP mail not sent.");
+    }
     res
       .status(200)
       .json(new ApiResponse(200, {}, "OTP mail sent successfully."));
