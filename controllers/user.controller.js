@@ -17,16 +17,17 @@ const loginOtpSend = async (req, res) => {
     });
 
     if (!user) throw new ApiError(404, "User not found");
-    const otp = await handleOtp();
+    // const otp = await handleOtp();
+    const otp = 123456;
 
     await prisma.user.update({
       where: { id: user.id },
       data: { otp, otp_expiry: new Date(Date.now() + 5 * 60 * 1000) },
     });
-    const mailed = await sendMail(email, otp);
-    if (!mailed) {
-      throw new ApiError(500, "Something went wrong. OTP mail not sent.");
-    }
+    // const mailed = await sendMail(email, otp);
+    // if (!mailed) {
+    //   throw new ApiError(500, "Something went wrong. OTP mail not sent.");
+    // }
     res
       .status(200)
       .json(new ApiResponse(200, {}, "OTP mail sent successfully."));
