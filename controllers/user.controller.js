@@ -3,31 +3,38 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { sendMail } from "../utils/mailer.js";
 import prisma from "../db/db.config.js";
 import jwt from "jsonwebtoken";
+import { handleOtp } from "../utils/otpHandler.js";
+
 const loginOtpSend = async (req, res) => {
   try {
     const email = req.body.email;
-    if (!email) throw new ApiError(400, "Email address required.");
+    if (!email) throw new ApiError(400, "Email address required");
+
     const user = await prisma.user.findFirst({
       where: {
-        email: email,
+        email: `${email}`.toLowerCase(),
       },
     });
-    if (!user) throw new ApiError(404, "User not found.");
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    if (!user) throw new ApiError(404, "User not found");
+    const otp = await handleOtp();
+
     await prisma.user.update({
       where: { id: user.id },
       data: { otp, otp_expiry: new Date(Date.now() + 5 * 60 * 1000) },
     });
     const mailed = await sendMail(email, otp);
     if (!mailed) {
-      console.log("Otp mail not sent");
       throw new ApiError(500, "Something went wrong. OTP mail not sent.");
     }
     res
       .status(200)
       .json(new ApiResponse(200, {}, "OTP mail sent successfully."));
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(error.statusCode || 500).json({
+      success: error.success || false,
+      message: error.message || "Internal server error",
+    });
   }
 };
 
@@ -35,12 +42,13 @@ const loginOtpVerify = async (req, res) => {
   try {
     const { email, otp } = req.body;
     if (!email || !otp)
-      throw new ApiError(400, "Email address and OTP required.");
+      throw new ApiError(400, "Email address and OTP required");
+
     const user = await prisma.user.findFirst({
-      where: { email: email },
+      where: { email: `${email}`.toLowerCase() },
     });
-    console.log(email, otp);
-    if (!user) throw new ApiError(404, "User not found.");
+
+    if (!user) throw new ApiError(404, "User not found");
     const role = user.role;
     if (user.otp !== otp || user.otp_expiry < new Date())
       throw new ApiError(400, "OTP mismatch or expired.");
@@ -57,7 +65,10 @@ const loginOtpVerify = async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { token, role }, "Login successful."));
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
   }
 };
 
@@ -71,6 +82,7 @@ const verifyRefreshToken = async (req, res) => {
     if (!decodedToken) {
       throw new ApiError(400, "Wrong token provided");
     }
+
     const user = await prisma.user.findFirst({
       where: { id: decodedToken.userId },
       select: {
@@ -82,12 +94,18 @@ const verifyRefreshToken = async (req, res) => {
         gender: true,
       },
     });
+
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+
     return res.status(200).json(new ApiResponse(200, user, "Verified token"));
   } catch (error) {
-    console.log(error.message);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      data: null,
+      message: error.message || "Internal server error",
+    });
   }
 };
 
@@ -179,4 +197,5 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 export { loginOtpSend, loginOtpVerify, verifyRefreshToken, getUserProfile };
